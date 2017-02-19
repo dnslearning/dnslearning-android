@@ -13,5 +13,27 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:gravity="bottom"
+        android:text="DNS Server:"
+        android:id="@+id/dnsServerLabel"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:text="8.8.8.8"
+        android:ems="10"
+        android:id="@+id/editIpAddress"
+        android:layout_below="@+id/dnsServerLabel"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="Add DNS"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editIpAddress"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/AddDNSButton" />
 </RelativeLayout>
