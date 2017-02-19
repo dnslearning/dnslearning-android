@@ -1,7 +1,10 @@
 package com.smartmadre.smartdns;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.VpnService;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
@@ -19,9 +22,41 @@ public class VPNService extends VpnService {
     private VpnService.Builder builder = new VpnService.Builder();
     private DatagramChannel tunnel;
     private Boolean shouldRun = true;
+    private final BroadcastReceiver stopServiceReceiver = new BroadcastReceiver()
+    {
+        public void onReceive(Context paramAnonymousContext, Intent paramAnonymousIntent)
+        {
+            if (paramAnonymousIntent.getAction().equals("STOP_SMART_DNS")) {
+                VPNService.this.stopThisService();
+            }
+        }
+    };
+
+    private void registerBroadcast() {
+        IntentFilter localIntentFilter = new IntentFilter();
+        localIntentFilter.addAction("STOP_SMART_DNS");
+        registerReceiver(stopServiceReceiver, localIntentFilter);
+    }
+
+    private void stopThisService() {
+        shouldRun = false;
+        try {
+            tunnel.close();
+            mInterface.close();
+            if (this.mThread != null) {
+                this.mThread.interrupt();
+            }
+            unregisterReceiver(stopServiceReceiver);
+            stopSelf();
+            Log.d("VPNService", "Stop VPNService");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        registerBroadcast();
         mThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -56,13 +91,5 @@ public class VPNService extends VpnService {
         }, "SmartDNS");
         mThread.start();
         return START_STICKY;
-    }
-
-    @Override
-    public void onDestroy() {
-        if (mThread != null) {
-            mThread.interrupt();
-        }
-        super.onDestroy();
     }
 }
