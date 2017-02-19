@@ -1,4 +1,4 @@
-package smartdns.smartmadre.com.smartdns;
+package com.smartmadre.smartdns;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("smartdns.smartmadre.com.smartdns", appContext.getPackageName());
+        assertEquals("com.smartmadre.smartdns", appContext.getPackageName());
     }
 }

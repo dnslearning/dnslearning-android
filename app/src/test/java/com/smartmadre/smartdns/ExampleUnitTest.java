@@ -1,4 +1,4 @@
-package smartdns.smartmadre.com.smartdns;
+package com.smartmadre.smartdns;
 
 import org.junit.Test;
 
