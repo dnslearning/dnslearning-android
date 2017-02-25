@@ -12,6 +12,11 @@ import android.util.Log;
 import com.smartmadre.smartdns.helper.StaticContext;
 
 public class NetworkMonitor extends BroadcastReceiver {
+    public static Boolean isConnectedToWiFi() {
+        WifiManager wifiManager = (WifiManager) StaticContext.AppContext.getSystemService(Context.WIFI_SERVICE);
+        return wifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLED;
+    }
+
     public static String getCurrentWiFiSSID() {
         WifiManager wifiManager = (WifiManager) StaticContext.AppContext.getSystemService(Context.WIFI_SERVICE);
         WifiInfo currentWifi = wifiManager.getConnectionInfo();
@@ -29,7 +34,6 @@ public class NetworkMonitor extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(NetworkMonitor.class.getName(), "onReceive: ");
         ServiceManager.ensureService();
     }
 }

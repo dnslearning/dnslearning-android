@@ -1,6 +1,10 @@
 package com.smartmadre.smartdns;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -36,7 +40,7 @@ public class ChangeDNSActivity extends AppCompatActivity {
             dnsIpAddress.setEnabled(true);
             onlyForCurrentWiFi.setEnabled(true);
 
-            if(NetworkMonitor.getCurrentWiFiSSID() != null) {
+            if (NetworkMonitor.isConnectedToWiFi()) {
                 onlyForCurrentWiFi.setVisibility(View.VISIBLE);
                 onlyForCurrentWiFi.setEnabled(true);
                 onlyForCurrentWiFi.setText("Only for Wi-Fi \"" + NetworkMonitor.getCurrentWiFiSSID() + "\"");
@@ -58,7 +62,22 @@ public class ChangeDNSActivity extends AppCompatActivity {
 
         updateUI();
 
-        enableDNSButton.setOnClickListener(new View.OnClickListener() {
+        registerReceiver(new ConnectivityChangeReceiver(), new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
+        enableDNSButton.setOnClickListener(enableDNSButtonListener());
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            Intent intent = new Intent(this, VPNService.class);
+            startService(intent);
+            PreferenceManager.setVpnServiceEnabled(true);
+            updateUI();
+        }
+    }
+
+    protected View.OnClickListener enableDNSButtonListener() {
+        return new View.OnClickListener() {
             public void onClick(View v) {
                 String ip = String.valueOf(dnsIpAddress.getText());
                 PreferenceManager.setDNS(ip);
@@ -82,15 +101,22 @@ public class ChangeDNSActivity extends AppCompatActivity {
                     onActivityResult(0, RESULT_OK, null);
                 }
             }
-        });
+        };
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            Intent intent = new Intent(this, VPNService.class);
-            startService(intent);
-            PreferenceManager.setVpnServiceEnabled(true);
-            updateUI();
+    class ConnectivityChangeReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (onlyForCurrentWiFi.isChecked() || PreferenceManager.getVpnServiceEnabled())
+                return;
+
+            if (NetworkMonitor.isConnectedToWiFi()) {
+                onlyForCurrentWiFi.setVisibility(View.VISIBLE);
+                onlyForCurrentWiFi.setText("Only for Wi-Fi \"" + NetworkMonitor.getCurrentWiFiSSID() + "\"");
+            } else {
+                onlyForCurrentWiFi.setVisibility(View.INVISIBLE);
+                onlyForCurrentWiFi.setChecked(false);
+            }
         }
     }
 }
