@@ -16,7 +16,7 @@ public class NetworkMonitor extends BroadcastReceiver {
         WifiManager wifiManager = (WifiManager) StaticContext.AppContext.getSystemService(Context.WIFI_SERVICE);
         WifiInfo currentWifi = wifiManager.getConnectionInfo();
         if (currentWifi != null) {
-            return currentWifi.getSSID();
+            return currentWifi.getSSID().replaceAll("^\"|\"$", "");
         }
         return null;
     }

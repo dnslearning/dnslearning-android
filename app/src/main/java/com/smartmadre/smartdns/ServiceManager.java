@@ -35,11 +35,12 @@ public class ServiceManager {
             return;
 
         Intent intent = new Intent(StaticContext.AppContext, StartVPNServiceHelperActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         StaticContext.AppContext.startActivity(intent);
     }
 
     public static void ensureService() {
-        if (PreferenceManager.getEnabled()) {
+        if (PreferenceManager.getVpnServiceEnabled()) {
             if (PreferenceManager.getLimitedToWiFi() == null ||
                     PreferenceManager.getLimitedToWiFi().equals(NetworkMonitor.getCurrentWiFiSSID())) {
                 start();

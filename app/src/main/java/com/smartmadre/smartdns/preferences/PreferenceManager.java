@@ -16,11 +16,11 @@ public class PreferenceManager {
     {
         return preferences.getString("dns", "8.8.8.8");
     }
-    public static Boolean getEnabled() {
-        return preferences.getBoolean("enabled", false);
+    public static Boolean getVpnServiceEnabled() {
+        return preferences.getBoolean("vpnServiceEnabled", false);
     }
     public static String getLimitedToWiFi() {
-        return preferences.getString("limitedToWiFi", null);
+        return preferences.getString("onlyForWiFi", null);
     }
 
 
@@ -29,13 +29,13 @@ public class PreferenceManager {
         edit.commit();
     }
 
-    public static void setEnabled(Boolean enabled) {
-        edit.putBoolean("enabled", enabled);
+    public static void setVpnServiceEnabled(Boolean enabled) {
+        edit.putBoolean("vpnServiceEnabled", enabled);
         edit.commit();
     }
 
     public static void setLimitedToWiFi(String ssid) {
-        edit.putString("limitedToWiFi", ssid);
+        edit.putString("onlyForWiFi", ssid);
         edit.commit();
     }
 

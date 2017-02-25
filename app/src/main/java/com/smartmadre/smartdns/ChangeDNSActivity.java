@@ -1,5 +1,6 @@
 package com.smartmadre.smartdns;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
+import com.smartmadre.smartdns.helper.StaticContext;
 import com.smartmadre.smartdns.preferences.PreferenceManager;
 
 public class ChangeDNSActivity extends AppCompatActivity {
@@ -20,12 +22,12 @@ public class ChangeDNSActivity extends AppCompatActivity {
             onlyForCurrentWiFi.setChecked(true);
         }
 
-        if (PreferenceManager.getEnabled()) {
+        if (PreferenceManager.getVpnServiceEnabled()) {
             dnsIpAddress.setEnabled(false);
             onlyForCurrentWiFi.setEnabled(false);
 
             if (PreferenceManager.getLimitedToWiFi() != null) {
-                onlyForCurrentWiFi.setText("Only for Wi-Fi " + PreferenceManager.getLimitedToWiFi());
+                onlyForCurrentWiFi.setText("Only for Wi-Fi \"" + PreferenceManager.getLimitedToWiFi() + "\"");
             } else {
                 onlyForCurrentWiFi.setText("Only for current Wi-Fi");
             }
@@ -37,7 +39,7 @@ public class ChangeDNSActivity extends AppCompatActivity {
             if(NetworkMonitor.getCurrentWiFiSSID() != null) {
                 onlyForCurrentWiFi.setVisibility(View.VISIBLE);
                 onlyForCurrentWiFi.setEnabled(true);
-                onlyForCurrentWiFi.setText("Only for Wi-Fi " + NetworkMonitor.getCurrentWiFiSSID());
+                onlyForCurrentWiFi.setText("Only for Wi-Fi \"" + NetworkMonitor.getCurrentWiFiSSID() + "\"");
             } else {
                 onlyForCurrentWiFi.setVisibility(View.INVISIBLE);
             }
@@ -61,25 +63,34 @@ public class ChangeDNSActivity extends AppCompatActivity {
                 String ip = String.valueOf(dnsIpAddress.getText());
                 PreferenceManager.setDNS(ip);
 
-                if (PreferenceManager.getEnabled()) {
+                if (PreferenceManager.getVpnServiceEnabled()) {
                     ServiceManager.stop();
-                    PreferenceManager.setEnabled(false);
+                    PreferenceManager.setVpnServiceEnabled(false);
                     PreferenceManager.setLimitedToWiFi(null);
                     updateUI();
                     return;
                 }
 
-                PreferenceManager.setEnabled(true);
-
                 if (onlyForCurrentWiFi.isChecked()) {
                     PreferenceManager.setLimitedToWiFi(NetworkMonitor.getCurrentWiFiSSID());
                 }
 
-                ServiceManager.start();
-                updateUI();
+                Intent intent = VPNService.prepare(StaticContext.AppContext);
+                if (intent != null) {
+                    startActivityForResult(intent, 0);
+                } else {
+                    onActivityResult(0, RESULT_OK, null);
+                }
             }
         });
     }
 
-
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            Intent intent = new Intent(this, VPNService.class);
+            startService(intent);
+            PreferenceManager.setVpnServiceEnabled(true);
+            updateUI();
+        }
+    }
 }
