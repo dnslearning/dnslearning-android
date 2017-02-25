@@ -16,16 +16,30 @@ public class PreferenceManager {
     {
         return preferences.getString("dns", "8.8.8.8");
     }
+    public static Boolean getEnabled() {
+        return preferences.getBoolean("enabled", false);
+    }
+    public static String getLimitedToWiFi() {
+        return preferences.getString("limitedToWiFi", null);
+    }
 
 
-    public static void setDNS(String ip)
-    {
+    public static void setDNS(String ip) {
         edit.putString("dns", ip);
         edit.commit();
     }
 
-    public static void prepare()
-    {
+    public static void setEnabled(Boolean enabled) {
+        edit.putBoolean("enabled", enabled);
+        edit.commit();
+    }
+
+    public static void setLimitedToWiFi(String ssid) {
+        edit.putString("limitedToWiFi", ssid);
+        edit.commit();
+    }
+
+    public static void prepare() {
         preferences = StaticContext.AppContext.getSharedPreferences("prefs", 0);
         edit = preferences.edit();
     }

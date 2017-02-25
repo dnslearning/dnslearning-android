@@ -21,19 +21,31 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="text"
-        android:text="8.8.8.8"
         android:ems="10"
-        android:id="@+id/editIpAddress"
+        android:id="@+id/dnsIpAddress"
         android:layout_below="@+id/dnsServerLabel"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dnsIpAddress"
+        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp"
+        android:id="@+id/onlyForCurrentWiFi"
+        tools:text="Only for this WiFi" />
+
 
     <Button
         android:text="Add DNS"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/editIpAddress"
+        android:layout_below="@+id/onlyForCurrentWiFi"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/AddDNSButton" />
+        android:id="@+id/enableDNSButton" />
+
+
 </RelativeLayout>
