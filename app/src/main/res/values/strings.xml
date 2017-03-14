@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">AltaDNS</string>
+    <string name="device_description">
+        Change your DNS server configuration easily
+    </string>
+    <string name="device_admin_label">AltaDNS</string>
 </resources>

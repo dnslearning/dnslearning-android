@@ -1,12 +1,15 @@
 package com.smartmadre.smartdns;
 
+import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -19,6 +22,7 @@ public class ChangeDNSActivity extends AppCompatActivity {
     EditText dnsIpAddress;
     Button enableDNSButton;
     CheckBox onlyForCurrentWiFi;
+    private static final int ADMIN_RECEIVER_REQUEST_CODE = 999;
 
     private void updateUI() {
         dnsIpAddress.setText(PreferenceManager.getDNS());
@@ -65,10 +69,14 @@ public class ChangeDNSActivity extends AppCompatActivity {
         registerReceiver(new ConnectivityChangeReceiver(), new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         enableDNSButton.setOnClickListener(enableDNSButtonListener());
+
+        setupDeviceAdminReceiver();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
+        if (resultCode == ADMIN_RECEIVER_REQUEST_CODE) {
+            updateUI();
+        } else if (resultCode == RESULT_OK) {
             Intent intent = new Intent(this, VPNService.class);
             startService(intent);
             PreferenceManager.setVpnServiceEnabled(true);
@@ -94,14 +102,32 @@ public class ChangeDNSActivity extends AppCompatActivity {
                     PreferenceManager.setLimitedToWiFi(NetworkMonitor.getCurrentWiFiSSID());
                 }
 
-                Intent intent = VPNService.prepare(StaticContext.AppContext);
-                if (intent != null) {
-                    startActivityForResult(intent, 0);
-                } else {
-                    onActivityResult(0, RESULT_OK, null);
-                }
+                setupVPNService();
             }
         };
+    }
+
+    private void setupVPNService() {
+        Intent intent = VPNService.prepare(StaticContext.AppContext);
+        if (intent != null) {
+            startActivityForResult(intent, 0);
+        } else {
+            onActivityResult(0, RESULT_OK, null);
+        }
+    }
+
+    private void setupDeviceAdminReceiver() {
+        DevicePolicyManager devicePolicyManager = (DevicePolicyManager)getSystemService(Context.DEVICE_POLICY_SERVICE);
+        ComponentName componentName = new ComponentName(this, AltaDNSDeviceAdminReceiver.class);
+
+        if (!devicePolicyManager.isAdminActive(componentName)) {
+            Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName);
+            intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Click on Activate button to secure your application.");
+            startActivityForResult(intent, ADMIN_RECEIVER_REQUEST_CODE);
+        } else {
+            devicePolicyManager.lockNow();
+        }
     }
 
     class ConnectivityChangeReceiver extends BroadcastReceiver {
