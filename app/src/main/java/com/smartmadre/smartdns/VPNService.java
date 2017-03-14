@@ -62,7 +62,7 @@ public class VPNService extends VpnService {
             public void run() {
                 try {
                     Log.d("VPNService", "Use " + PreferenceManager.getDNS() + " as DNS server");
-                    mInterface = builder.setSession("SmartDNS")
+                    mInterface = builder.setSession("AltaDNS")
                             .addAddress("192.168.0.1", 24)
                             .addDnsServer(PreferenceManager.getDNS())
                             .establish();
@@ -88,7 +88,7 @@ public class VPNService extends VpnService {
                     }
                 }
             }
-        }, "SmartDNS");
+        }, "AltaDNS");
         mThread.start();
         return START_STICKY;
     }

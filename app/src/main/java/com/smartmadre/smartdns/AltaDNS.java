@@ -9,7 +9,7 @@ import com.smartmadre.smartdns.preferences.PreferenceManager;
  * Created by dzmitry on 19/02/2017.
  */
 
-public class SmartDNS extends Application {
+public class AltaDNS extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
