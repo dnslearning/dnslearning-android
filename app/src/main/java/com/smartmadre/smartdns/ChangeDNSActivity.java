@@ -69,13 +69,11 @@ public class ChangeDNSActivity extends AppCompatActivity {
         registerReceiver(new ConnectivityChangeReceiver(), new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         enableDNSButton.setOnClickListener(enableDNSButtonListener());
-
-        setupDeviceAdminReceiver();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == ADMIN_RECEIVER_REQUEST_CODE) {
-            updateUI();
+        if (requestCode == ADMIN_RECEIVER_REQUEST_CODE) {
+            setupVPNService();
         } else if (resultCode == RESULT_OK) {
             Intent intent = new Intent(this, VPNService.class);
             startService(intent);
@@ -102,7 +100,7 @@ public class ChangeDNSActivity extends AppCompatActivity {
                     PreferenceManager.setLimitedToWiFi(NetworkMonitor.getCurrentWiFiSSID());
                 }
 
-                setupVPNService();
+                setupDeviceAdminReceiver();
             }
         };
     }
@@ -126,7 +124,7 @@ public class ChangeDNSActivity extends AppCompatActivity {
             intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Click on Activate button to secure your application.");
             startActivityForResult(intent, ADMIN_RECEIVER_REQUEST_CODE);
         } else {
-            devicePolicyManager.lockNow();
+            setupVPNService();
         }
     }
 
