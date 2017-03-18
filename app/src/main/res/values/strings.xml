@@ -10,4 +10,7 @@
     <string name="ip_address">IP Address</string>
     <string name="only_for_current_wifi">Only for current WiFi</string>
     <string name="default_ip">8.8.8.8</string>
+    <string name="device_admin_activation_notification">On the next window click on Activate button to secure your application from being stopped and deleted.</string>
+    <string name="ok">OK</string>
+    <string name="dont_show_again">Don\'t show again</string>
 </resources>

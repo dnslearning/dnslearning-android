@@ -4,9 +4,11 @@ import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -119,14 +121,34 @@ public class ChangeDNSActivity extends AppCompatActivity {
         DevicePolicyManager devicePolicyManager = (DevicePolicyManager)getSystemService(Context.DEVICE_POLICY_SERVICE);
         ComponentName componentName = new ComponentName(this, AltaDNSDeviceAdminReceiver.class);
 
-        if (!devicePolicyManager.isAdminActive(componentName)) {
-            Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
-            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName);
-            intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Click on Activate button to secure your application.");
-            startActivityForResult(intent, ADMIN_RECEIVER_REQUEST_CODE);
-        } else {
+        if (devicePolicyManager.isAdminActive(componentName) || !PreferenceManager.getSuggestDeviceAdmin()) {
             setupVPNService();
+        } else {
+            showDeviceAdminInfoPopup();
         }
+    }
+
+    private void showDeviceAdminInfoPopup() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.device_admin_activation_notification)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ComponentName componentName = new ComponentName(ChangeDNSActivity.this, AltaDNSDeviceAdminReceiver.class);
+                        Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+                        intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName);
+                        intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Click on Activate button to secure your application.");
+                        startActivityForResult(intent, ADMIN_RECEIVER_REQUEST_CODE);
+                    }
+                })
+                .setNegativeButton(R.string.dont_show_again, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        PreferenceManager.setSuggestDeviceAdmin(false);
+                        setupVPNService();
+                    }
+                });
+        builder.show();
     }
 
     class ConnectivityChangeReceiver extends BroadcastReceiver {

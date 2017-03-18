@@ -22,6 +22,9 @@ public class PreferenceManager {
     public static String getLimitedToWiFi() {
         return preferences.getString("onlyForWiFi", null);
     }
+    public static Boolean getSuggestDeviceAdmin() {
+        return preferences.getBoolean("suggestDeviceAdmin", true);
+    }
 
 
     public static void setDNS(String ip) {
@@ -36,6 +39,11 @@ public class PreferenceManager {
 
     public static void setLimitedToWiFi(String ssid) {
         edit.putString("onlyForWiFi", ssid);
+        edit.commit();
+    }
+
+    public static void setSuggestDeviceAdmin(Boolean value) {
+        edit.putBoolean("suggestDeviceAdmin", value);
         edit.commit();
     }
 
