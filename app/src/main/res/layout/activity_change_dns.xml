@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.percent.PercentFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_change_dns"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,42 +11,50 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.smartmadre.smartdns.ChangeDNSActivity">
 
-    <TextView
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="bottom"
-        android:text="DNS Server:"
-        android:id="@+id/dnsServerLabel"/>
+        app:layout_marginBottomPercent="20%"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:orientation="vertical"
+        android:background="#F1F1F1"
+        android:padding="10dp">
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="text"
-        android:ems="10"
-        android:id="@+id/dnsIpAddress"
-        android:layout_below="@+id/dnsServerLabel"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="21dp"
+            android:text="@string/dns_server"
+            android:id="@+id/dnsServerLabel"/>
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/dnsIpAddress"
-        android:layout_marginRight="16dp"
-        android:layout_marginEnd="16dp"
-        android:id="@+id/onlyForCurrentWiFi"
-        tools:text="Only for this WiFi" />
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="phone"
+                android:text="@string/default_ip"
+                android:hint="@string/ip_address"
+                android:ems="7"
+                android:textSize="18dp"
+                android:id="@+id/dnsIpAddress"/>
 
+            <Button
+                android:text="@string/enable_dns"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorPrimary"
+                android:id="@+id/enableDNSButton" />
+        </LinearLayout>
 
-    <Button
-        android:text="Add DNS"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/onlyForCurrentWiFi"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/enableDNSButton" />
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/onlyForCurrentWiFi"
+            tools:text="@string/only_for_current_wifi" />
 
-
-</RelativeLayout>
+    </LinearLayout>
+</android.support.percent.PercentFrameLayout>

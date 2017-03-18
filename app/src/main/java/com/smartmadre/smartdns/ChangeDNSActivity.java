@@ -9,7 +9,6 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -37,9 +36,10 @@ public class ChangeDNSActivity extends AppCompatActivity {
             if (PreferenceManager.getLimitedToWiFi() != null) {
                 onlyForCurrentWiFi.setText("Only for Wi-Fi \"" + PreferenceManager.getLimitedToWiFi() + "\"");
             } else {
-                onlyForCurrentWiFi.setText("Only for current Wi-Fi");
+                onlyForCurrentWiFi.setText(R.string.only_for_current_wifi);
             }
-            enableDNSButton.setText("Disable DNS");
+            enableDNSButton.setText(R.string.disable_dns);
+            enableDNSButton.setTextColor(getResources().getColor(R.color.colorAccentRed));
         } else {
             dnsIpAddress.setEnabled(true);
             onlyForCurrentWiFi.setEnabled(true);
@@ -51,7 +51,8 @@ public class ChangeDNSActivity extends AppCompatActivity {
             } else {
                 onlyForCurrentWiFi.setVisibility(View.INVISIBLE);
             }
-            enableDNSButton.setText("Enable DNS");
+            enableDNSButton.setText(R.string.enable_dns);
+            enableDNSButton.setTextColor(getResources().getColor(R.color.colorPrimary));
         }
     }
 

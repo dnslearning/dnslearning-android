@@ -4,4 +4,10 @@
         Change your DNS server configuration easily
     </string>
     <string name="device_admin_label">AltaDNS</string>
+    <string name="dns_server">DNS Server</string>
+    <string name="enable_dns">Enable</string>
+    <string name="disable_dns">Disable</string>
+    <string name="ip_address">IP Address</string>
+    <string name="only_for_current_wifi">Only for current WiFi</string>
+    <string name="default_ip">8.8.8.8</string>
 </resources>
