@@ -35,7 +35,6 @@
             <EditText
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:inputType="phone"
                 android:text="@string/default_ip"
                 android:hint="@string/ip_address"
                 android:ems="7"
