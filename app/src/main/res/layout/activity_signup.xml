@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.widget.LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="5.03"
+        android:gravity="center"
+        android:text="@string/signup_hint"
+        android:textAlignment="gravity" />
+
+    <GridLayout
+        android:layout_width="344dp"
+        android:layout_height="150dp"
+        android:layout_gravity="center"
+        android:layout_weight="20.15"
+        android:columnCount="2"
+        android:focusable="false"
+        android:orientation="horizontal"
+        android:rowCount="3">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:labelFor="@+id/emailText"
+            android:text="@string/email" />
+
+        <EditText
+            android:id="@+id/emailText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textEmailAddress" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:labelFor="@+id/passwordText"
+            android:text="@string/password" />
+
+        <EditText
+            android:id="@+id/passwordText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPassword" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:labelFor="@+id/confirmPasswordText"
+            android:text="@string/confirm" />
+
+        <EditText
+            android:id="@+id/confirmPasswordText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPassword" />
+    </GridLayout>
+
+    <Button
+        android:id="@+id/continueButton"
+        android:layout_width="353dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_weight="0.85"
+        android:background="@android:color/holo_green_dark"
+        android:text="@string/continue_text"
+        android:textColor="@android:color/white"
+        android:textSize="24sp" />
+
+</android.widget.LinearLayout>
