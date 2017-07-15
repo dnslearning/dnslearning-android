@@ -1,15 +1,12 @@
-package com.smartmadre.smartdns;
+package org.dnslearning;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.util.Log;
 
-import com.smartmadre.smartdns.helper.StaticContext;
+import org.dnslearning.helper.StaticContext;
 
 public class NetworkMonitor extends BroadcastReceiver {
     public static Boolean isConnectedToWiFi() {

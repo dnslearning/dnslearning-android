@@ -1,28 +1,30 @@
-package com.smartmadre.smartdns;
+package org.dnslearning;
 
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.util.Log;
 
-import com.smartmadre.smartdns.helper.StaticContext;
-import com.smartmadre.smartdns.preferences.PreferenceManager;
+import org.dnslearning.helper.StaticContext;
 
 /**
- * Created by dzmitry on 19/02/2017.
+ * Helper methods for controlling the VpnService
  */
-
 public class ServiceManager {
     public static boolean isWorking() {
-        return isServiceRunning(StaticContext.AppContext, VPNService.class);
+        return isServiceRunning(StaticContext.AppContext, DNSLearningVpnService.class);
     }
 
-    private static boolean isServiceRunning(Context context, Class<?> serviceClass) {
+    public static boolean isServiceRunning(Context context, Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.getName().equals(service.service.getClassName())) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -31,22 +33,25 @@ public class ServiceManager {
     }
 
     public static void start() {
-        if (isWorking())
+        if (isWorking()) {
             return;
+        }
 
-        Intent intent = new Intent(StaticContext.AppContext, StartVPNServiceHelperActivity.class);
+        Intent intent = new Intent(StaticContext.AppContext, VpnHelperActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         StaticContext.AppContext.startActivity(intent);
     }
 
     public static void ensureService() {
-        if (PreferenceManager.getVpnServiceEnabled()) {
-            if (PreferenceManager.getLimitedToWiFi() == null ||
-                    PreferenceManager.getLimitedToWiFi().equals(NetworkMonitor.getCurrentWiFiSSID())) {
-                start();
-                return;
-            }
+        Log.d("VPNService", "Ensuring service is running");
+
+        SharedPreferences prefs = StaticContext.getPrefs();
+        String dns = prefs.getString("dns", "").trim();
+
+        if (dns.isEmpty()) {
+            stop();
+        } else {
+            start();
         }
-        stop();
     }
 }
