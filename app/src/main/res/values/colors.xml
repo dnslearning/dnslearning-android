@@ -3,5 +3,6 @@
     <color name="colorPrimary">#388F34</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#388F34</color>
-    <color name="colorAccentRed">#FF4081</color>
+    <color name="colorEmergencyUnlock">#aa0000</color>
+    <color name="colorEmergencyLock">#00aa00</color>
 </resources>
