@@ -12,7 +12,7 @@ import android.util.Log;
  * API for posting and getting JSON
  */
 public class DNSLearningAPI {
-    private String baseUrl = "http://kris.smartmadre.com";
+    private String baseUrl = "https://dnslearning.mana.fun";
     private RequestQueue queue;
 
     public DNSLearningAPI(RequestQueue queue) {
@@ -21,15 +21,25 @@ public class DNSLearningAPI {
 
     // TODO just wrap ErrorListener and pipe ok=false reason=network error
 
-    public JsonObjectRequest call(String method, JSONObject req, Response.Listener<JSONObject> f) {
+    public JsonObjectRequest call(String method, JSONObject req, final Response.Listener<JSONObject> f) {
         Response.ErrorListener errorListener = new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                JSONObject response = new JSONObject();
+
+                try {
+                    response.putOpt("error", "Network error");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
                 Log.v("Error", error.toString());
+                f.onResponse(response);
+                return;
             }
         };
 
-        String url = baseUrl + "/api?method=" + method;
+        String url = baseUrl + "/api/" + method;
         JsonObjectRequest r = new JsonObjectRequest(url, req, f, errorListener);
         queue.add(r);
         return r;

@@ -38,8 +38,7 @@ public class VpnHelperActivity extends AppCompatActivity {
             Log.d("VPNService", "Helper activity is staritng service");
             Intent intent = new Intent(this, DNSLearningVpnService.class);
             startService(intent);
+            finish();
         }
-
-        finish();
     }
 }

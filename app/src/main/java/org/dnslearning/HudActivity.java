@@ -6,21 +6,23 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.ImageButton;
 
 import org.dnslearning.helper.StaticContext;
 
 /**
  * Ensures the VPN is running while showing the HUD page
  */
-public class ChildActivity extends DNSLearningActivity {
+public class HudActivity extends AppCompatActivity {
     private SharedPreferences prefs;
-    private String hudhash, dns;
+    private String hudhash;//, dns;
     private Button unlockButton;
+    private ImageButton configButton;
     private Handler reloadHandler;
     private WebView childWebView;
     private Runnable reloadRunnable;
@@ -29,12 +31,13 @@ public class ChildActivity extends DNSLearningActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d("VPNService", "Creating ChildActivity");
+        Log.d("VPNService", "Creating HudActivity");
 
-        setContentView(R.layout.activity_child);
+        setContentView(R.layout.activity_hud);
         prefs = StaticContext.getPrefs();
         childWebView = (WebView)findViewById(R.id.childWebView);
-        unlockButton = getButton(R.id.unlockButton);
+        unlockButton = (Button)findViewById(R.id.unlockButton);
+        configButton = (ImageButton)findViewById(R.id.configButton);
 
         reloadRunnable =  new Runnable() {
             @Override
@@ -54,11 +57,17 @@ public class ChildActivity extends DNSLearningActivity {
                 emergencyUnlock();
             }
         });
+        configButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showConfig();
+            }
+        });
 
-        hudhash = prefs.getString("childToken", "").trim();
-        dns = prefs.getString("dns", "").trim();
+        hudhash = prefs.getString("token", "").trim();
+        //dns = prefs.getString("dns", "").trim();
 
-        if (hudhash.isEmpty() || dns.isEmpty()) {
+        if (hudhash.isEmpty()) { // || dns.isEmpty()) {
             bail("Missing storage");
             return;
         }
@@ -70,11 +79,18 @@ public class ChildActivity extends DNSLearningActivity {
         ServiceManager.ensureService();
     }
 
+    protected void showConfig() {
+        Intent intent = new Intent(this, ConfigActivity.class);
+        startActivity(intent);
+    }
+
     protected void bail(String reason) {
+        /*
         Toast.makeText(this, reason, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, FirstTimeActivity.class);
         startActivity(intent);
         finish();
+        */
     }
 
     @Override
@@ -87,7 +103,7 @@ public class ChildActivity extends DNSLearningActivity {
     }
 
     protected void reloadPage() {
-        childWebView.loadUrl("http://kris.smartmadre.com/hud?hash=" + hudhash);
+        childWebView.loadUrl("https://dnslearning.mana.fun/hud/" + hudhash);
     }
 
     protected void emergencyUnlock() {
@@ -113,6 +129,7 @@ public class ChildActivity extends DNSLearningActivity {
         String title = "Are you sure?";
         String msg = "Stopping will disable all DNS Learning functionality and alert your parents";
 
+        /*
         prompt(title, msg, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -120,5 +137,6 @@ public class ChildActivity extends DNSLearningActivity {
                 styleUnlockButton(false);
             }
         });
+        */
     }
 }

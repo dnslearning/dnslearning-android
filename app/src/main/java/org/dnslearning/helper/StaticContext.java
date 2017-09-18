@@ -20,4 +20,18 @@ public class StaticContext {
         prefs = AppContext.getSharedPreferences("DNSLearningSettings", 0);
         return prefs;
     }
+
+    private static String token = null;
+
+    public static String getLoginToken() {
+        if (token == null) {
+            token = getPrefs().getString("token", null);
+        }
+
+        return token;
+    }
+
+    public static String pairCode = "000000";
+    public static String ipv4 = "";
+    public static String ipv6 = "";
 }

@@ -43,9 +43,11 @@ public class DNSLearningVpnService extends VpnService {
         try {
             tunnel.close();
             mInterface.close();
+
             if (this.mThread != null) {
                 this.mThread.interrupt();
             }
+
             unregisterReceiver(stopServiceReceiver);
             stopSelf();
             Log.d("DNSLearningVpnService", "Stop DNSLearningVpnService");
@@ -104,7 +106,7 @@ public class DNSLearningVpnService extends VpnService {
         //    builder.addAddress(address, 24);
         //}
 
-        String dns = prefs.getString("dns", "8.8.8.8");
+        String dns = prefs.getString("ipv4", "8.8.8.8");
         Log.d("DNSLearningVpnService", "Use " + dns + " as DNS server");
 
         builder.addDnsServer(dns);

@@ -46,7 +46,7 @@ public class ServiceManager {
         Log.d("VPNService", "Ensuring service is running");
 
         SharedPreferences prefs = StaticContext.getPrefs();
-        String dns = prefs.getString("dns", "").trim();
+        String dns = prefs.getString("ipv4", "").trim();
 
         if (dns.isEmpty()) {
             stop();
