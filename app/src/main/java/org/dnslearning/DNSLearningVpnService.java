@@ -14,6 +14,7 @@ import org.dnslearning.helper.StaticContext;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
+import java.util.Objects;
 
 public class DNSLearningVpnService extends VpnService {
     private Thread mThread;
@@ -25,7 +26,7 @@ public class DNSLearningVpnService extends VpnService {
     {
         public void onReceive(Context paramAnonymousContext, Intent paramAnonymousIntent)
         {
-            if (paramAnonymousIntent.getAction().equals("STOP_SMART_DNS")) {
+            if (Objects.equals(paramAnonymousIntent.getAction(), "STOP_SMART_DNS")) {
                 DNSLearningVpnService.this.stopThisService();
             }
         }
