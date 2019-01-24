@@ -103,7 +103,7 @@ public class HudActivity extends AppCompatActivity {
     }
 
     protected void reloadPage() {
-        childWebView.loadUrl("https://dnslearning.mana.fun/hud/" + hudhash);
+        childWebView.loadUrl("https://studycity.org/device/" + hudhash);
     }
 
     protected void emergencyUnlock() {
