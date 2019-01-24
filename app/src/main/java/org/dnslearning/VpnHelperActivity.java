@@ -35,7 +35,7 @@ public class VpnHelperActivity extends AppCompatActivity {
         Log.d("VPNService", "User responded to the dialog");
 
         if (resultCode == RESULT_OK) {
-            Log.d("VPNService", "Helper activity is staritng service");
+            Log.d("VPNService", "Helper activity is starting service");
             Intent intent = new Intent(this, DNSLearningVpnService.class);
             startService(intent);
             finish();
