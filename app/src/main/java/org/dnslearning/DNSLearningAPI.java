@@ -28,6 +28,7 @@ public class DNSLearningAPI {
                 JSONObject response = new JSONObject();
 
                 try {
+                    Log.d("dnslearning", "ERROR" + response.toString());
                     response.putOpt("error", "Network error");
                 } catch (JSONException e) {
                     e.printStackTrace();
