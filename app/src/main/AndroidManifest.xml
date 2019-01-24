@@ -57,7 +57,9 @@
         <activity
             android:name=".HudActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ConfigActivity" android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".ConfigActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>
