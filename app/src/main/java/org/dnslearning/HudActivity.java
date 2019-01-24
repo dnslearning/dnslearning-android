@@ -9,7 +9,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageButton;
 
@@ -20,12 +22,10 @@ import org.dnslearning.helper.StaticContext;
  */
 public class HudActivity extends AppCompatActivity {
     private SharedPreferences prefs;
-    private String hudhash;//, dns;
+    private String hudhash;
     private Button unlockButton;
     private ImageButton configButton;
-    private Handler reloadHandler;
     private WebView childWebView;
-    private Runnable reloadRunnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,17 +39,14 @@ public class HudActivity extends AppCompatActivity {
         unlockButton = (Button)findViewById(R.id.unlockButton);
         configButton = (ImageButton)findViewById(R.id.configButton);
 
-        reloadRunnable =  new Runnable() {
+        childWebView.getSettings().setJavaScriptEnabled(true);
+
+        childWebView.setWebViewClient(new WebViewClient() {
             @Override
-            public void run() {
-                try {
-                    reloadPage();
-                    styleUnlockButton(ServiceManager.isWorking());
-                } finally {
-                    reloadHandler.postDelayed(reloadRunnable, 5000);
-                }
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                return false;
             }
-        };
+        });
 
         unlockButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,16 +62,13 @@ public class HudActivity extends AppCompatActivity {
         });
 
         hudhash = prefs.getString("token", "").trim();
-        //dns = prefs.getString("dns", "").trim();
 
-        if (hudhash.isEmpty()) { // || dns.isEmpty()) {
+        if (hudhash.isEmpty()) {
             bail("Missing storage");
             return;
         }
 
-        // Start a loop of reloading the HUD page
-        reloadHandler = new Handler();
-        reloadHandler.postDelayed(reloadRunnable, 333);
+        childWebView.loadUrl("https://studycity.org/device/" + hudhash);
 
         ServiceManager.ensureService();
     }
@@ -85,25 +79,14 @@ public class HudActivity extends AppCompatActivity {
     }
 
     protected void bail(String reason) {
+        Log.d("dnslearning", "Bailing because " + reason);
+
         /*
         Toast.makeText(this, reason, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, FirstTimeActivity.class);
         startActivity(intent);
         finish();
         */
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        if (reloadHandler != null) {
-            reloadHandler.removeCallbacks(reloadRunnable);
-        }
-    }
-
-    protected void reloadPage() {
-        childWebView.loadUrl("https://studycity.org/device/" + hudhash);
     }
 
     protected void emergencyUnlock() {
