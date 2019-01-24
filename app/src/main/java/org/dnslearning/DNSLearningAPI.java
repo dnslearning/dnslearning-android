@@ -12,7 +12,7 @@ import android.util.Log;
  * API for posting and getting JSON
  */
 public class DNSLearningAPI {
-    private String baseUrl = "https://dnslearning.mana.fun";
+    private String baseUrl = "https://studycity.org";
     private RequestQueue queue;
 
     public DNSLearningAPI(RequestQueue queue) {
