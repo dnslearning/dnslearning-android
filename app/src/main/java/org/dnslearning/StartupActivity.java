@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.android.volley.Response;
@@ -97,6 +98,8 @@ public class StartupActivity extends AppCompatActivity {
     }
 
     private void showError(String message) {
+        Log.d("dnslearning", message);
+
         new AlertDialog.Builder(this)
                 .setTitle("Error")
                 .setMessage(message)
