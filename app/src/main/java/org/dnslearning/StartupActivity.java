@@ -17,9 +17,6 @@ import org.dnslearning.helper.StaticContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import static org.dnslearning.R.id.progressLabel;
 
 public class StartupActivity extends AppCompatActivity {
