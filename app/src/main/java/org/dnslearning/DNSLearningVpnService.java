@@ -10,18 +10,43 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import org.dnslearning.helper.StaticContext;
+import org.dnslearning.org.dnslearning.net.DnsPacketBuilder;
+import org.dnslearning.org.dnslearning.net.DnsQuestion;
+import org.dnslearning.org.dnslearning.net.Ip4Packet;
+import org.dnslearning.org.dnslearning.net.Ip4PacketReader;
+import org.dnslearning.org.dnslearning.net.Ip4PacketWriter;
+import org.dnslearning.org.dnslearning.net.UdpPacket;
 
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.nio.channels.FileChannel;
+import java.util.HashSet;
 import java.util.Objects;
 
 public class DNSLearningVpnService extends VpnService {
     private Thread mThread;
     private ParcelFileDescriptor mInterface;
     private VpnService.Builder builder = new VpnService.Builder();
-    private DatagramChannel tunnel;
     private Boolean shouldRun = true;
+    private FileDescriptor fd;
+    private FileInputStream inputStream;
+    private FileOutputStream outputStream;
+    private FileChannel inputChannel;
+    private FileChannel outputChannel;
+    private Ip4PacketReader packetReader;
+    private Ip4PacketWriter packetWriter;
+    private DnsPacketBuilder dnsBuilder = new DnsPacketBuilder();
+    private HashSet<String> alwaysAllowedDomains = new HashSet<>();
+    private DatagramChannel dnsChannel;
+    private boolean studyMode = true;
+
     private final BroadcastReceiver stopServiceReceiver = new BroadcastReceiver()
     {
         public void onReceive(Context paramAnonymousContext, Intent paramAnonymousIntent)
@@ -42,7 +67,7 @@ public class DNSLearningVpnService extends VpnService {
         shouldRun = false;
 
         try {
-            tunnel.close();
+            //tunnel.close();
             mInterface.close();
 
             if (this.mThread != null) {
@@ -73,7 +98,7 @@ public class DNSLearningVpnService extends VpnService {
     protected void runThread() {
         try {
             buildVpn();
-            openTunnel();
+            //openTunnel();
             sleep();
         } catch (Exception e) {
             e.printStackTrace();
@@ -89,42 +114,93 @@ public class DNSLearningVpnService extends VpnService {
         }
     }
 
-    protected void buildVpn() {
-        builder.setSession("DNSLearningApp");
-        builder.addAddress("192.168.0.1", 24);
-
+    protected void buildVpn() throws IOException {
         SharedPreferences prefs = StaticContext.getPrefs();
 
-        //Set<String> empty = new HashSet<>();
-        //Set<String> trusted = new HashSet<String>();
-        //trusted.add("45.32.192.233");
-        //trusted.add("45.76.235.109");
-        //
-        //
-        //trusted.addAll(prefs.getStringSet("trusted", empty));
-        //
-        //for (String address : trusted) {
-        //    builder.addAddress(address, 24);
-        //}
+        String virtualGateway = "10.10.10.1";
+        String dummyDns = "8.8.8.8";
 
-        String dns = prefs.getString("ipv4", "8.8.8.8");
-        Log.d("DNSLearningVpnService", "Use " + dns + " as DNS server");
+        builder.setSession("DNSLearningApp");
+        builder.addAddress(virtualGateway, 32);
+        builder.addDnsServer(dummyDns);
+        builder.addRoute(dummyDns, 32);
 
-        builder.addDnsServer(dns);
-
+        // Establish the VPN
         mInterface = builder.establish();
-    }
 
-    protected void openTunnel() throws IOException {
-        tunnel = DatagramChannel.open();
-        tunnel.connect(new InetSocketAddress("127.0.0.1", 8087));
+        // Open channels to read and write the tunnel
+        fd = mInterface.getFileDescriptor();
+        inputStream = new FileInputStream(fd);
+        outputStream = new FileOutputStream(fd);
+        inputChannel = inputStream.getChannel();
+        outputChannel = outputStream.getChannel();
 
-        protect(tunnel.socket());
+        // Create objects for reading and writing Ip4 packets
+        packetReader = new Ip4PacketReader(inputChannel);
+        packetWriter = new Ip4PacketWriter(outputChannel);
+
+        // Open a UDP socket used for sending real DNS packets and protect it from being routed
+        // through the VPN tunnel
+        dnsChannel = DatagramChannel.open();
+        protect(dnsChannel.socket());
     }
 
     protected void sleep() throws InterruptedException {
         while (shouldRun) {
+            try {
+                tick();
+            } catch (IOException e) {
+                Log.e("dnslearning", "Error", e);
+            }
+
             Thread.sleep(100L);
         }
+    }
+
+    private void tick() throws IOException {
+        Ip4Packet ipPacket = packetReader.read();
+
+        if (ipPacket == null) {
+            return;
+        }
+
+        ByteBuffer ipPacketData = ipPacket.getPayload();
+        ipPacketData.rewind();
+
+        UdpPacket udpPacket = new UdpPacket(ipPacketData);
+        dnsBuilder.decode(udpPacket.getPayload());
+
+        if (checkBlocked()) {
+            sendBlockedResponse();
+        } else {
+            forwardDnsRequest(udpPacket);
+        }
+    }
+
+    private boolean checkBlocked() {
+        if (!studyMode) {
+            return false;
+        }
+
+        for (DnsQuestion question : dnsBuilder.getQuestions()) {
+            Log.d("dnslearning", "DNS Question " + question.name);
+
+            if (!alwaysAllowedDomains.contains(question.name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void sendBlockedResponse() {
+
+    }
+
+    private void forwardDnsRequest(UdpPacket packet) throws IOException {
+        InetAddress host = null;
+        int port = 0;
+        InetSocketAddress address = new InetSocketAddress(host, port);
+        dnsChannel.send(packet.getPayload(), address);
     }
 }
