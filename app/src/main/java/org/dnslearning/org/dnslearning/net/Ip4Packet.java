@@ -1,5 +1,7 @@
 package org.dnslearning.org.dnslearning.net;
 
+import android.util.Log;
+
 import java.nio.ByteBuffer;
 
 public class Ip4Packet {

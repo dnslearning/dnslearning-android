@@ -114,6 +114,15 @@ public class Ip4Header {
         return data.getInt(16);
     }
 
+    public byte[] getDestIpBytes() {
+        byte[] bytes = new byte[4];
+        bytes[0] = data.get(16);
+        bytes[1] = data.get(17);
+        bytes[2] = data.get(18);
+        bytes[3] = data.get(19);
+        return bytes;
+    }
+
     public void setDestIp(int ip) {
         data.putInt(16, ip);
     }

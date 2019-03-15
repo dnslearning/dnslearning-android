@@ -10,6 +10,7 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import org.dnslearning.helper.StaticContext;
+import org.dnslearning.org.dnslearning.net.DebugHelper;
 import org.dnslearning.org.dnslearning.net.DnsPacketBuilder;
 import org.dnslearning.org.dnslearning.net.DnsQuestion;
 import org.dnslearning.org.dnslearning.net.Ip4Packet;
@@ -22,8 +23,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramSocket;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.StandardProtocolFamily;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.FileChannel;
@@ -44,8 +48,10 @@ public class DNSLearningVpnService extends VpnService {
     private Ip4PacketWriter packetWriter;
     private DnsPacketBuilder dnsBuilder = new DnsPacketBuilder();
     private HashSet<String> alwaysAllowedDomains = new HashSet<>();
+    private HashSet<String> alwaysBlockedDomains = new HashSet<>();
     private DatagramChannel dnsChannel;
-    private boolean studyMode = true;
+    private boolean studyMode = false;
+    private ByteBuffer receiveBuffer = ByteBuffer.allocate(16 * 1024);
 
     private final BroadcastReceiver stopServiceReceiver = new BroadcastReceiver()
     {
@@ -148,7 +154,8 @@ public class DNSLearningVpnService extends VpnService {
     protected void sleep() throws InterruptedException {
         while (shouldRun) {
             try {
-                tick();
+                readTunnel();
+                receiveDnsPackets();
             } catch (IOException e) {
                 Log.e("dnslearning", "Error", e);
             }
@@ -157,50 +164,71 @@ public class DNSLearningVpnService extends VpnService {
         }
     }
 
-    private void tick() throws IOException {
+    private void readTunnel() throws IOException {
         Ip4Packet ipPacket = packetReader.read();
 
         if (ipPacket == null) {
             return;
         }
 
-        ByteBuffer ipPacketData = ipPacket.getPayload();
-        ipPacketData.rewind();
-
-        UdpPacket udpPacket = new UdpPacket(ipPacketData);
+        UdpPacket udpPacket = new UdpPacket(ipPacket.getPayload());
         dnsBuilder.decode(udpPacket.getPayload());
 
-        if (checkBlocked()) {
-            sendBlockedResponse();
-        } else {
-            forwardDnsRequest(udpPacket);
-        }
-    }
-
-    private boolean checkBlocked() {
-        if (!studyMode) {
-            return false;
-        }
+//        if (!studyMode) {
+//            sendBlockedResponse();
+//            return;
+//        }
 
         for (DnsQuestion question : dnsBuilder.getQuestions()) {
             Log.d("dnslearning", "DNS Question " + question.name);
 
-            if (!alwaysAllowedDomains.contains(question.name)) {
-                return true;
+            //if (!studyMode!alwaysAllowedDomains.contains(question.name)) {
+            if (!checkDomain(question.name)) {
+                sendBlockedResponse();
+                return;
             }
         }
 
-        return false;
+        forwardDnsRequest(ipPacket, udpPacket);
+    }
+
+    private boolean checkDomain(String domain) {
+        if (studyMode) {
+            return alwaysAllowedDomains.contains(domain);
+        } else {
+            return !alwaysBlockedDomains.contains(domain);
+        }
     }
 
     private void sendBlockedResponse() {
-
+        DebugHelper.dump("Blocked");
     }
 
-    private void forwardDnsRequest(UdpPacket packet) throws IOException {
-        InetAddress host = null;
-        int port = 0;
+    private void forwardDnsRequest(Ip4Packet ipPacket, UdpPacket udpPacket) throws IOException {
+        InetAddress host = Inet4Address.getByAddress(ipPacket.getHeader().getDestIpBytes());
+        int port = udpPacket.getHeader().getDestPort();
         InetSocketAddress address = new InetSocketAddress(host, port);
-        dnsChannel.send(packet.getPayload(), address);
+        DebugHelper.dump("send to " + address.toString());
+
+        int localPort = udpPacket.getHeader().getSourcePort();
+        InetAddress localHost = null;
+        InetSocketAddress localAddress = new InetSocketAddress(localHost, localPort);
+
+        //dnsChannel.socket().bind(localAddress);
+        dnsChannel.send(udpPacket.getPayload(), address);
+    }
+
+    private void receiveDnsPackets() throws IOException {
+        receiveBuffer.clear();
+        SocketAddress from = dnsChannel.receive(receiveBuffer);
+
+        if (from == null) {
+            return;
+        }
+
+        DebugHelper.dump("received packet " + from.toString());
+
+        // TODO create IPv4 packet from DNS packet
+        // TODO maintain mapping of virtual ports
     }
 }

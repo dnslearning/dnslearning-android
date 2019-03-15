@@ -14,11 +14,19 @@ public class UdpPacket {
     }
 
     public UdpPacket(ByteBuffer data) {
-        Log.d("dnslearning", "UDP packet total position " + data.position());
-        Log.d("dnslearning", "UDP packet total limit " + data.limit());
+        DebugHelper.dump("UDP packet total position " + data.position());
+        DebugHelper.dump("UDP packet total limit " + data.limit());
 
         this.header = new UdpHeader(extractHeader(data));
         this.payload = extractPayload(header, data);
+
+        DebugHelper.dump("UDP Source Port: " + header.getSourcePort());
+        DebugHelper.dump("UDP Dest Port: " + header.getDestPort());
+        DebugHelper.dump("UDP Length: " + header.getLength());
+        DebugHelper.dump("UDP Checksum: " + header.getChecksum());
+
+        DebugHelper.dump(header.getData());
+        DebugHelper.dump(payload);
     }
 
     public UdpHeader getHeader() {
@@ -30,8 +38,8 @@ public class UdpPacket {
     }
 
     public static ByteBuffer extractHeader(ByteBuffer data) {
-        Log.d("dnslearning", "UDP packet header buffer position " + data.position());
-        Log.d("dnslearning", "UDP packet header buffer limit " + data.limit());
+        DebugHelper.dump("UDP packet header buffer position " + data.position());
+        DebugHelper.dump("UDP packet header buffer limit " + data.limit());
 
         data = data.duplicate();
         data.limit(data.position() + 8);

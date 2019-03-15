@@ -1,5 +1,7 @@
 package org.dnslearning.org.dnslearning.net;
 
+import android.util.Log;
+
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -150,6 +152,9 @@ public class DnsPacketBuilder {
     public boolean decode(ByteBuffer packet) {
         clear();
 
+        DebugHelper.dump("DNS Packet Size: " + packet.remaining());
+        DebugHelper.dump("DNS Packet Endian: " + packet.order().toString());
+
         // DNS header
         id = packet.getShort() & 0xFFFF;
         flags = packet.getShort() & 0xFFFF;
@@ -157,6 +162,13 @@ public class DnsPacketBuilder {
         int ancount = packet.getShort() & 0xFFFF;
         int nscount = packet.getShort() & 0xFFFF;
         int arcount = packet.getShort() & 0xFFFF;
+
+        DebugHelper.dump("DNS ID: " + id);
+        DebugHelper.dump("DNS Flags: " + flags);
+        DebugHelper.dump("DNS Questions: " + qdcount);
+        DebugHelper.dump("DNS Answers: " + ancount);
+        DebugHelper.dump("DNS Nameservers: " + nscount);
+        DebugHelper.dump("DNS Authority: " + arcount);
 
         for (int i=0; i < qdcount; i++) { questions.add(readQuestion(packet)); }
         for (int i=0; i < ancount; i++) { answers.add(readResource(packet)); }
@@ -202,9 +214,10 @@ public class DnsPacketBuilder {
 
     private String readStringCompressed(ByteBuffer buffer, byte c) {
         int offset = (c & 0b00111111) | (buffer.get() << 8);
+        //int offset = ((c & 0b00111111) << 8) | buffer.get();
 
         if (offset > buffer.position()) {
-            throw new IllegalArgumentException("DNS labels must point backwards");
+            throw new IllegalArgumentException("DNS labels must point backwards (" + offset + ")");
         }
 
         buffer = buffer.duplicate();
